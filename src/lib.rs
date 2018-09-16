@@ -1192,6 +1192,36 @@ pub mod helper {
     }
 }
 
+fn default_path(name: &str, ext: &str) -> String {
+    let mut path = String::from("./");
+    path.push_str(name);
+    path.push_str(ext);
+    path
+}
+
+pub fn default_signed_certificate_path(name: &str) -> String {
+    default_path(name, ".cert.pem")
+}
+
+pub fn default_intermediate_certificate_path(name: &str) -> String {
+    default_path(name, ".intermediate.cert.pem")
+}
+
+pub fn default_chained_certificate_path(name: &str) -> String {
+    default_path(name, ".chained.cert.pem")
+}
+
+pub fn default_domain_key_path(name: &str) -> String {
+    default_path(name, ".key.pem")
+}
+
+pub fn default_domain_csr_path(name: &str) -> String {
+    default_path(name, ".csr")
+}
+
+pub fn default_user_key_path(name: &str) -> String {
+    default_path(name, ".user_key.pem")
+}
 
 
 
@@ -1299,5 +1329,35 @@ mod tests {
             .sign_certificate()
             .unwrap();
         account.revoke_certificate(cert.cert()).unwrap();
+    }
+
+    #[test]
+    fn test_default_signed_certificate_path() {
+        assert_eq!(&default_signed_certificate_path("example.com"), "./example.com.cert.pem");
+    }
+
+    #[test]
+    fn test_default_intermediate_certificate_path() {
+        assert_eq!(&default_intermediate_certificate_path("example.com"), "./example.com.intermediate.cert.pem");
+    }
+
+    #[test]
+    fn test_default_chained_certificate_path() {
+        assert_eq!(&default_chained_certificate_path("example.com"), "./example.com.chained.cert.pem");
+    }
+
+    #[test]
+    fn test_default_domain_key_path() {
+        assert_eq!(&default_domain_key_path("example.com"), "./example.com.key.pem");
+    }
+
+    #[test]
+    fn test_default_domain_csr_path() {
+        assert_eq!(&default_domain_csr_path("example.com"), "./example.com.csr");
+    }
+
+    #[test]
+    fn test_default_user_key_path() {
+        assert_eq!(&default_user_key_path("example.com"), "./example.com.user_key.pem");
     }
 }

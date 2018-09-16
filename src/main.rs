@@ -239,29 +239,46 @@ fn sign_certificate(matches: &ArgMatches) -> Result<()> {
     }
 
     let certificate = certificate_signer.sign_certificate()?;
-    let mut certificate_written = false;
 
-    if let Some(path) = matches.value_of("SAVE_SIGNED_CERTIFICATE") {
-        certificate.save_signed_certificate(path)?;
-        certificate_written = true;
-    }
-    if let Some(path) = matches.value_of("SAVE_INTERMEDIATE_CERTIFICATE") {
-        certificate.save_intermediate_certificate(None, path)?;
-    }
-    if let Some(path) = matches.value_of("SAVE_CHAINED_CERTIFICATE") {
-        certificate.save_signed_certificate_and_chain(None, path)?;
-        certificate_written = true;
-    }
-    if !certificate_written {
-        certificate.write_signed_certificate(&mut io::stdout())?;
-    }
-    if let Some(path) = matches.value_of("SAVE_DOMAIN_KEY") {
+    let default_path = &acme_client::default_signed_certificate_path(&domains[0]);
+    let path = matches.value_of("SAVE_SIGNED_CERTIFICATE")
+        .unwrap_or(default_path);
+    println!("saving signed certificate to {}", path);
+    certificate.save_signed_certificate(path)?;
+
+    let default_path = &acme_client::default_intermediate_certificate_path(&domains[0]);
+    let path = matches.value_of("SAVE_INTERMEDIATE_CERTIFICATE")
+        .unwrap_or(default_path);
+    println!("saving intermediate certificate to: {}", path);
+    certificate.save_intermediate_certificate(None, path)?;
+
+    let default_path = &acme_client::default_chained_certificate_path(&domains[0]);
+    let path = matches.value_of("SAVE_CHAINED_CERTIFICATE")
+        .unwrap_or(default_path);
+    println!("saving chained certificate to: {}", path);
+    certificate.save_signed_certificate_and_chain(None, path)?;
+
+    let default_path = &acme_client::default_domain_key_path(&domains[0]);
+    let path = matches.value_of("SAVE_DOMAIN_KEY")
+        .unwrap_or(default_path);
+    if matches.value_of("DOMAIN_KEY_PATH").is_none() {
+        println!("saving domain key to: {}", path);
         certificate.save_private_key(path)?;
     }
-    if let Some(path) = matches.value_of("SAVE_DOMAIN_CSR") {
+
+    let default_path = &acme_client::default_domain_csr_path(&domains[0]);
+    let path = matches.value_of("SAVE_DOMAIN_CSR")
+        .unwrap_or(default_path);
+    if matches.value_of("DOMAIN_CSR").is_none() {
+        println!("saving domain csr to: {}", path);
         certificate.save_csr(path)?;
     }
-    if let Some(path) = matches.value_of("SAVE_USER_KEY") {
+
+    let default_path = &acme_client::default_user_key_path(&domains[0]);
+    let path = matches.value_of("SAVE_USER_KEY")
+        .unwrap_or(default_path);
+    if matches.value_of("USER_KEY_PATH").is_none() {
+        println!("saving user key to: {}", path);
         account.save_private_key(path)?;
     }
 
